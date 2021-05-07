@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="title-wrapper">
-      <span class="title">{{ systemName }}</span>
+      <span class="title">{{ systemInfo.systemName }}</span>
     </div>
     <div class="login-wrapper">
       <el-form :model="loginForm" :rules="rules" ref="loginForm" @keyup.native.13="submitForm('loginForm')" label-width="100px">
@@ -21,6 +21,10 @@
           <el-button style="width:100%" type="primary" @click="submitForm('loginForm')">登录</el-button>
         </el-form-item>
       </el-form>
+    </div>
+    <div class="footer">
+      <span>系统版本:{{ systemInfo.systemVersion }}</span>
+      <span v-html="systemInfo.systemCopyright"></span>
     </div>
   </div>
 </template>
@@ -43,7 +47,11 @@ export default {
         captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
       },
       captchaPath: '',
-      systemName: '问卷Online后台管理系统'
+      systemInfo: {
+        systemName: '问卷Online后台管理系统',
+        systemVersion: '1.0.0',
+        systemCopyright: '&copy cloudgyb.版权所有.'
+      }
     }
   },
   methods: {
@@ -75,22 +83,34 @@ export default {
     },
     // 获取验证码
     getCaptcha() {
-      let v = getUUID()
-      console.debug(v)
       this.loginForm.uuid = getUUID()
       this.captchaPath = `/captcha.jpg?uuid=${this.loginForm.uuid}`
+    },
+    getSystemInfo() {
+      this.$http.get('/system/info').then(resp => {
+        let data = resp.data
+        if (data && data.code === 0) {
+          console.debug(data)
+          this.systemInfo = data.data
+          localStorage.setItem('systemInfo', JSON.stringify(this.systemInfo))
+        } else {
+          this.$message.error('获取系统信息出错！')
+        }
+      })
     }
   },
   mounted() {
     this.getCaptcha()
+  },
+  created() {
+    this.getSystemInfo()
   }
 }
 </script>
 
 <style scoped>
 .main {
-  position: relative;
-  top: 10%;
+  padding-top: 8%;
 }
 .title-wrapper {
   text-align: center;
@@ -105,5 +125,23 @@ export default {
   height: 400px;
   margin: 0 auto;
   box-shadow: 0 2px 3px 3px #ccc;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  color: #c6c6c6;
+  height: 30px;
+  line-height: 30px;
+  box-sizing: border-box;
+  text-align: center;
+}
+@media screen and (max-height: 600px) {
+  .footer {
+    display: none;
+  }
+}
+.footer span {
+  margin-right: 20px;
 }
 </style>

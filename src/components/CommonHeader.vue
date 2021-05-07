@@ -10,7 +10,7 @@
       </el-breadcrumb>
     </div>
     <div>
-      <span class="system-name">问卷Online后台管理系统</span>
+      <span class="system-name">{{ systemInfo.systemName }}</span>
     </div>
     <el-dropdown @command="handleCommand">
       <span class="el-dropdown-link" style="display:inline-flex;flex-direction:row;align-items:center;">
@@ -32,7 +32,8 @@ export default {
   name: 'CommonHeader',
   data() {
     return {
-      userInfo: {}
+      userInfo: {},
+      systemInfo: {}
     }
   },
   methods: {
@@ -49,6 +50,9 @@ export default {
     },
     getUserInfo() {
       this.userInfo = JSON.parse(localStorage.getItem('user'))
+    },
+    getSystemInfo() {
+      this.systemInfo = JSON.parse(localStorage.getItem('systemInfo'))
     },
     logout() {
       let _self = this
@@ -70,6 +74,7 @@ export default {
   },
   created() {
     this.getUserInfo()
+    this.getSystemInfo()
   }
 }
 </script>
